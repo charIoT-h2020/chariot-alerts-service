@@ -4,7 +4,7 @@ import falcon_jsonify
 
 from chariot_base.datasource import LocalDataSource 
 
-from resources.alerts import AlertsResource, AlertOverTimeResource
+from chariot_alert_service.resources.alerts import AlertsResource, AlertOverTimeResource
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(middleware=[

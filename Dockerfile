@@ -7,6 +7,6 @@ COPY . .
 
 EXPOSE 8030
 
-RUN apk add gnupg gcc g++ make python3-dev libffi-dev openssl-dev gmp-dev && pip install gunicorn && pip install pytest && python setup.py install
+RUN apk add gnupg gcc g++ make python3-dev libffi-dev openssl-dev gmp-dev && pip install falcon-jsonify gunicorn pytest && python setup.py install
 
 ENTRYPOINT ["/usr/local/bin/gunicorn", "--config", "/usr/src/app/gunicorn.py", "chariot_alert_service.app:app"]

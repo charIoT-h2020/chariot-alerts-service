@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 requirements = [
     'falcon',
     'influxdb',
-    'chariot_base==0.6.3',
+    'chariot_base==0.6.4',
     'paho-mqtt',
     'asyncio',
     'gmqtt',

@@ -2,6 +2,10 @@ import json
 import falcon
 import logging
 
+from opentracing.ext import tags
+from opentracing.propagation import Format
+from chariot_base.utilities import Traceable
+
 
 db_name = 'fog_alerts'
 
@@ -62,36 +66,42 @@ def group_by_time(req, filters=[]):
     return q
 
 
-class AlertsResource(object):
+class AlertsResource(Traceable):
 
     def __init__(self, db):
+        super(Traceable, self).__init__()
         self.db = db
 
-    def on_get(self, req, resp, sensor_id=None, alert_type=None):        
-        filters = []
+    def on_get(self, req, resp, sensor_id=None, alert_type=None):
+        span_ctx = self.tracer.tracer.extract(Format.HTTP_HEADERS, req.headers)
+        span_tags = {tags.SPAN_KIND: tags.SPAN_KIND_RPC_SERVER}
 
-        if sensor_id is not None:
-            filters.append(['sensor_id', sensor_id])
-        
-        if alert_type is not None:
-            filters.append(['name', alert_type])
+        with self.tracer.tracer.start_span('get_alerts', child_of=span_ctx, tags=span_tags):
+            filters = []
+
+            if sensor_id is not None:
+                filters.append(['sensor_id', sensor_id])
+            
+            if alert_type is not None:
+                filters.append(['name', alert_type])
 
 
-        page, page_size, q = filter_by(req, filters)
+            page, page_size, q = filter_by(req, filters)
 
-        results = self.db.query(q, db_name)
-        results = list(results[('alerts', None)])
+            results = self.db.query(q, db_name)
+            results = list(results[('alerts', None)])
 
-        resp.status = falcon.HTTP_200  # This is the default status
-        resp.json = {
-            'page': page,
-            'size': len(results),
-            'items': results
-        }
+            resp.status = falcon.HTTP_200  # This is the default status
+            resp.json = {
+                'page': page,
+                'size': len(results),
+                'items': results
+            }
 
     
-class AlertOverTimeResource(object):
+class AlertOverTimeResource(Traceable):
     def __init__(self, db):
+        super(Traceable, self).__init__()
         self.db = db
 
     def on_get(self, req, resp, sensor_id=None, alert_type=None):        

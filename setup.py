@@ -11,7 +11,19 @@ with open('README.rst') as readme_file:
 requirements = [
     'falcon',
     'influxdb',
-    'chariot_base==0.6.3'
+    'chariot_base==0.6.3',
+    'paho-mqtt',
+    'asyncio',
+    'gmqtt',
+    'influxdb',
+    'cloudant',
+    'ibmiotf',
+    'pytest',
+    'fastecdsa',
+    'ecdsa',
+    'pycrypto',
+    'jaeger-client',
+    'pytest-asyncio'
 ]
 
 setup_requirements = [ ]

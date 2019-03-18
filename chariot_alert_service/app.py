@@ -20,16 +20,17 @@ opts = open_config_file()
 options_db = opts.local_storage
 options_tracer = opts.tracer
 
-tracer = Tracer(options_tracer)
-tracer.init_tracer()
-
 db = LocalDataSource(options_db['host'], options_db['port'], options_db['username'], options_db['password'], options_db['database'])
 
 # Resources are represented by long-lived class instances
 alerts = AlertsResource(db)
-alerts.inject_tracer(tracer)
 alerts_over_time = AlertOverTimeResource(db)
-alerts_over_time.inject_tracer(tracer)
+
+if options_tracer['enabled']:
+    tracer = Tracer(options_tracer)
+    tracer.init_tracer()
+    alerts.inject_tracer(tracer)
+    alerts_over_time.inject_tracer(tracer)
 
 app.add_route('/alerts', alerts)
 app.add_route('/alerts/sensor/{sensor_id}', alerts)

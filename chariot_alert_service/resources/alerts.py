@@ -2,8 +2,6 @@ import json
 import falcon
 import logging
 
-from opentracing.ext import tags
-from opentracing.propagation import Format
 from chariot_base.utilities import Traceable
 
 
@@ -44,7 +42,6 @@ def filter_by(req, filters=[]):
         q = 'SELECT * FROM "alerts" %s' % (pagination_clause)
 
     logging.debug('Filter by: %s' % q)
-    print(q)
     return page, page_size, q
 
 
@@ -62,7 +59,6 @@ def group_by_time(req, filters=[]):
         q = 'SELECT COUNT(message) FROM "alerts" %s' % (group_by_clause)
 
     logging.debug('Group by: %s' % q)
-    print('Group by: %s' % q)
     return q
 
 
@@ -70,41 +66,45 @@ class AlertsResource(Traceable):
 
     def __init__(self, db):
         super(Traceable, self).__init__()
+        self.tracer = None
         self.db = db
 
     def on_get(self, req, resp, sensor_id=None, alert_type=None):
-        span_ctx = self.tracer.tracer.extract(Format.HTTP_HEADERS, req.headers)
-        span_tags = {tags.SPAN_KIND: tags.SPAN_KIND_RPC_SERVER}
+        span = self.start_span_from_request('get_alerts', req)
+        filters = []
 
-        with self.tracer.tracer.start_span('get_alerts', child_of=span_ctx, tags=span_tags):
-            filters = []
-
-            if sensor_id is not None:
-                filters.append(['sensor_id', sensor_id])
+        if sensor_id is not None:
+            filters.append(['sensor_id', sensor_id])
             
-            if alert_type is not None:
-                filters.append(['name', alert_type])
+        if alert_type is not None:
+            filters.append(['name', alert_type])
 
+        page, page_size, q = filter_by(req, filters)
 
-            page, page_size, q = filter_by(req, filters)
+        span.set_tag('q', q)
+        span.set_tag('page', page)
+        span.set_tag('page_size', page_size)
 
-            results = self.db.query(q, db_name)
-            results = list(results[('alerts', None)])
+        results = self.db.query(q, db_name)
+        results = list(results[('alerts', None)])
 
-            resp.status = falcon.HTTP_200  # This is the default status
-            resp.json = {
-                'page': page,
-                'size': len(results),
-                'items': results
-            }
+        resp.status = falcon.HTTP_200  # This is the default status
+        resp.json = {
+            'page': page,
+            'size': len(results),
+            'items': results
+        }
+        self.close_span(span)
 
     
 class AlertOverTimeResource(Traceable):
     def __init__(self, db):
         super(Traceable, self).__init__()
+        self.tracer = None
         self.db = db
 
-    def on_get(self, req, resp, sensor_id=None, alert_type=None):        
+    def on_get(self, req, resp, sensor_id=None, alert_type=None):
+        span = self.start_span_from_request('get_alerts_overtime', req)
         filters = []
 
         if sensor_id is not None:
@@ -116,8 +116,11 @@ class AlertOverTimeResource(Traceable):
 
         q = group_by_time(req, filters)
 
+        span.set_tag('q', q)
+
         results = self.db.query(q, db_name)
         results = list(results[('alerts', None)])
 
         resp.status = falcon.HTTP_200  # This is the default status
         resp.json = results
+        self.close_span(span)

@@ -37,9 +37,9 @@ def filter_by(req, filters=[]):
         time_clause.insert(0, '"%s"=\'%s\'' % (clause[0], clause[1]))
 
     if len(time_clause) > 0:
-        q = 'SELECT * FROM "alerts" WHERE %s %s' % (' AND '.join(time_clause), pagination_clause)
+        q = 'SELECT * FROM "alerts" WHERE %s ORDER BY time DESC %s' % (' AND '.join(time_clause), pagination_clause)
     else:
-        q = 'SELECT * FROM "alerts" %s' % (pagination_clause)
+        q = 'SELECT * FROM "alerts" ORDER BY time DESC %s' % (pagination_clause)
 
     logging.debug('Filter by: %s' % q)
     return page, page_size, q

@@ -1,11 +1,13 @@
 # Let's get this party started!
 import falcon
+import logging
 import falcon_jsonify
 
 from chariot_base.utilities import open_config_file
 from chariot_base.datasource import LocalDataSource 
 
 from chariot_base.utilities import Tracer
+from chariot_alert_service import __service_name__
 from chariot_alert_service.resources.alerts import AlertsResource, AlertOverTimeResource
 from wsgiref import simple_server
 
@@ -27,6 +29,8 @@ alerts = AlertsResource(db)
 alerts_over_time = AlertOverTimeResource(db)
 
 if options_tracer['enabled']:
+    options_tracer['service'] = __service_name__
+    logging.info(f'Enabling tracing for service "{__service_name__}"')
     tracer = Tracer(options_tracer)
     tracer.init_tracer()
     alerts.inject_tracer(tracer)

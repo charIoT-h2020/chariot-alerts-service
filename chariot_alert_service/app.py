@@ -21,8 +21,11 @@ opts = open_config_file()
 
 options_db = opts.local_storage
 options_tracer = opts.tracer
+options_alert_digester = opts.alert_digester
 
-db = LocalDataSource(options_db['host'], options_db['port'], options_db['username'], options_db['password'], options_db['database'])
+options_db['database'] = options_alert_digester['database']
+logging.debug(f'Database setup: {options_db}')
+db = LocalDataSource(**options_db)
 
 # Resources are represented by long-lived class instances
 alerts = AlertsResource(db)
@@ -30,7 +33,7 @@ alerts_over_time = AlertOverTimeResource(db)
 
 if options_tracer['enabled']:
     options_tracer['service'] = __service_name__
-    logging.info(f'Enabling tracing for service "{__service_name__}"')
+    logging.debug(f'Enabling tracing for service "{__service_name__}"')
     tracer = Tracer(options_tracer)
     tracer.init_tracer()
     alerts.inject_tracer(tracer)

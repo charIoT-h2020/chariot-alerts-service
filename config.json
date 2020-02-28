@@ -1,15 +1,16 @@
 {
     "local_storage": {
-        "host": "192.168.2.24",
-        "port": 8086,
+        "host": "192.168.183.128",
+        "path": "storage",
+        "port": 80,
         "username": "root",
-        "password": "root"        
+        "password": "root"
     },
     "alert_digester": {
         "database": "fog_alerts"
     },
     "tracer": {
-        "host": "192.168.2.24",
+        "host": "localhost",
         "enabled": true,
         "port": 5775
     },

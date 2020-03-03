@@ -56,6 +56,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://gitlab.com/chariot-h2020/chariot-alerts-service',
-    version='0.3.0',
+    version='0.11.0',
     zip_safe=False,
 )

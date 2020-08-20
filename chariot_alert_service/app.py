@@ -4,7 +4,7 @@ import logging
 import falcon_jsonify
 
 from chariot_base.utilities import open_config_file
-from chariot_base.datasource import LocalDataSource 
+from chariot_base.datasource import LocalDataSource
 
 from chariot_base.utilities import Tracer
 from chariot_alert_service import __service_name__
@@ -47,7 +47,8 @@ app.add_route('/alerts/sensor/{sensor_id}/type/{alert_type}', alerts)
 app.add_route('/alerts/overtime', alerts_over_time)
 app.add_route('/alerts/overtime/sensor/{sensor_id}', alerts_over_time)
 app.add_route('/alerts/overtime/type/{alert_type}', alerts_over_time)
-app.add_route('/alerts/overtime/sensor/{sensor_id}/type/{alert_type}', alerts_over_time)
+app.add_route(
+    '/alerts/overtime/sensor/{sensor_id}/type/{alert_type}', alerts_over_time)
 
 
 if __name__ == '__main__':

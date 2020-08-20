@@ -52,6 +52,11 @@ setup(
         'chariot_alert_service',
         'chariot_alert_service.*'
     ]),
+    entry_points={
+        'console_scripts': [
+            'alerts = chariot_alert_service.digester.alerts:main'
+        ]
+    },
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
